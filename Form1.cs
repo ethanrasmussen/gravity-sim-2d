@@ -1,5 +1,6 @@
 namespace gravity_simple;
 
+using Timer = System.Windows.Forms.Timer;
 
 public partial class Form1 : Form
 {
@@ -8,6 +9,11 @@ public partial class Form1 : Form
     const float G = 6.674e-1f;   // gravitational force
     const int TrailMax = 100;     // max trail length
     Timer timer = new Timer { Interval = 16 }; // ~60 FPS
+
+    private bool isDragging = false;
+    private PointF dragStart = PointF.Empty;
+    private PointF currentMouse = PointF.Empty;
+
     public Form1()
     {
         InitializeComponent();
@@ -55,12 +61,16 @@ public partial class Form1 : Form
     {
         float dt = timer.Interval / 1000f;
         int n = bodies.Count;
+        // PointF[] forces = new PointF[n];
 
         // compute forces between objects
-        var forces = new PointF[n];
+        PointF[] forces = new PointF[n];
+        // var forces = new PointF[n];
         for (int i = 0; i < n; i++)
         {
+            PointF netForce = PointF.Empty;
             var bi = bodies[i];
+
             for (int j = 0; j < n; j++)
             {
                 if (i == j) continue; // don't compute force on the same object
@@ -74,11 +84,11 @@ public partial class Form1 : Form
                 float F = (
                     G * (bi.Mass * bj.Mass)
                 ) / dist2;
-                // net
-                net.X += (F * dx) / dist;
-                net.Y += (F * dy) / dist;
+                // net force calulations
+                netForce.X += (F * dx) / dist;
+                netForce.Y += (F * dy) / dist;
             }
-            forces[i] = net;
+            forces[i] = netForce;
         }
 
         // integrate motion
@@ -115,14 +125,22 @@ public partial class Form1 : Form
         foreach (var b in bodies)
         {
             // draw trail
-            if (b.Trail.Count > 1)
+            var pts = b.Trail.ToArray();
+            if (pts.Length > 1)
             {
-                var pts = b.Trail.ToArray();
                 using (var pen = new Pen(b.Color, 1))
                 {
-                    G.DrawLines(pen, pts);
+                    g.DrawLines(pen, pts);
                 }
             }
+            // if (b.Trail.Count > 1)
+            // {
+            //     var pts = b.Trail.ToArray();
+            //     using (var pen = new Pen(b.Color, 1))
+            //     {
+            //         G.DrawLines(pen, pts);
+            //     }
+            // }
 
             // draw body
             float r = b.Radius;
