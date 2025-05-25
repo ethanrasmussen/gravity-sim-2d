@@ -27,6 +27,7 @@ public partial class Form1 : Form
         // physics update loop in winform
         InitBodies();
         timer.Tick += (s, e) => { UpdatePhysics(); Invalidate(); };
+        timer.Start();
 
     }
 
@@ -39,8 +40,8 @@ public partial class Form1 : Form
         bodies.Add(new CelestialBody(
             pos: center,
             vel: PointF.Empty,
-            mass: 2000,
-            radius: 20,
+            mass: 2000000,
+            radius: 22,
             color: Color.OrangeRed
         ));
 
@@ -61,7 +62,6 @@ public partial class Form1 : Form
     {
         float dt = timer.Interval / 1000f;
         int n = bodies.Count;
-        // PointF[] forces = new PointF[n];
 
         // compute forces between objects
         PointF[] forces = new PointF[n];
@@ -133,14 +133,6 @@ public partial class Form1 : Form
                     g.DrawLines(pen, pts);
                 }
             }
-            // if (b.Trail.Count > 1)
-            // {
-            //     var pts = b.Trail.ToArray();
-            //     using (var pen = new Pen(b.Color, 1))
-            //     {
-            //         G.DrawLines(pen, pts);
-            //     }
-            // }
 
             // draw body
             float r = b.Radius;
@@ -193,8 +185,8 @@ public partial class Form1 : Form
             );
             float speedFactor = 2f;
             var initVel = new PointF(
-                dragVector.X * speedFactor,
-                dragVector.Y * speedFactor
+                (dragVector.X * speedFactor)/2,
+                (dragVector.Y * speedFactor)/2
             );
 
             // spawn new body
@@ -203,7 +195,6 @@ public partial class Form1 : Form
             float dragVectorLength = (float)Math.Sqrt(
                 (dragVector.X * dragVector.X) + (dragVector.Y * dragVector.Y)
             );
-            // float mass = MathF.Min(500, dragVector.Length() * 2);
             float mass = MathF.Min(500, dragVectorLength * 2);
             float radius = MathF.Max(4, mass / 50);
             bodies.Add(new CelestialBody(
