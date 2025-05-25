@@ -166,7 +166,7 @@ public partial class Form1 : Form
     }
 
     // USER INPUT (click+drag to spawn celestial bodies)
-    protected override void OnMouseDown(MouseEventsArgs e)
+    protected override void OnMouseDown(MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Left)
         {
@@ -174,7 +174,7 @@ public partial class Form1 : Form
             dragStart = e.Location;
         }
     }
-    protected override void OnMouseMove(MouseEventsArgs e)
+    protected override void OnMouseMove(MouseEventArgs e)
     {
         if (isDragging)
         {
@@ -182,7 +182,7 @@ public partial class Form1 : Form
             Invalidate();
         }
     }
-    protected override void OnMouseUp(MouseEventsArgs e)
+    protected override void OnMouseUp(MouseEventArgs e)
     {
         if (isDragging && e.Button == MouseButtons.Left)
         {
@@ -200,7 +200,11 @@ public partial class Form1 : Form
             // spawn new body
             // TODO: Scroll-wheel for setting size/mass
             // CURRENT: mass & radius set by drag length
-            float mass = MathF.Min(500, dragVector.Length() * 2);
+            float dragVectorLength = (float)Math.Sqrt(
+                (dragVector.X * dragVector.X) + (dragVector.Y * dragVector.Y)
+            );
+            // float mass = MathF.Min(500, dragVector.Length() * 2);
+            float mass = MathF.Min(500, dragVectorLength * 2);
             float radius = MathF.Max(4, mass / 50);
             bodies.Add(new CelestialBody(
                 pos: dragStart,
