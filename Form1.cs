@@ -24,6 +24,7 @@ public partial class Form1 : Form
 
     }
 
+    // initialize celestial bodies
     void InitBodies()
     {
         var center = new PointF(ClientSize.Width / 2, ClientSize.Height / 2);
@@ -49,6 +50,7 @@ public partial class Form1 : Form
         ));
     }
 
+    // update physics of all celestial objects
     void UpdatePhysics()
     {
         float dt = timer.Interval / 1000f;
@@ -100,6 +102,47 @@ public partial class Form1 : Form
             if (b.Trail.Count > TrailMax)
             {
                 b.Trail.Dequeue();
+            }
+        }
+    }
+
+    // rendering for bodies & trails via onPaint override
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        var g = e.Graphics;
+        g.Clear(Color.Black);
+
+        foreach (var b in bodies)
+        {
+            // draw trail
+            if (b.Trail.Count > 1)
+            {
+                var pts = b.Trail.ToArray();
+                using (var pen = new Pen(b.Color, 1))
+                {
+                    G.DrawLines(pen, pts);
+                }
+            }
+
+            // draw body
+            float r = b.Radius;
+            var rect = new RectangleF(
+                b.Position.X - r,
+                b.Position.Y - r,
+                2 * r, 2 * r
+            );
+            using (var brush = new SolidBrush(b.Color))
+            {
+                g.FillEllipse(brush, rect);
+            }
+        }
+
+        // if dragging, draw rubberband line
+        if (isDragging)
+        {
+            using (var pen = new Pen(Color.White))
+            {
+                g.DrawLine(pen, dragStart, currentMouse);
             }
         }
     }
