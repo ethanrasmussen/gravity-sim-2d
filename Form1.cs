@@ -164,4 +164,52 @@ public partial class Form1 : Form
             }
         }
     }
+
+    // USER INPUT (click+drag to spawn celestial bodies)
+    protected override void OnMouseDown(MouseEventsArgs e)
+    {
+        if (e.Button == MouseButtons.Left)
+        {
+            isDragging = true;
+            dragStart = e.Location;
+        }
+    }
+    protected override void OnMouseMove(MouseEventsArgs e)
+    {
+        if (isDragging)
+        {
+            currentMouse = e.Location;
+            Invalidate();
+        }
+    }
+    protected override void OnMouseUp(MouseEventsArgs e)
+    {
+        if (isDragging && e.Button == MouseButtons.Left)
+        {
+            isDragging = false;
+            var dragVector = new PointF(
+                e.X - dragStart.X,
+                e.Y - dragStart.Y
+            );
+            float speedFactor = 2f;
+            var initVel = new PointF(
+                dragVector.X * speedFactor,
+                dragVector.Y * speedFactor
+            );
+
+            // spawn new body
+            // TODO: Scroll-wheel for setting size/mass
+            // CURRENT: mass & radius set by drag length
+            float mass = MathF.Min(500, dragVector.Length() * 2);
+            float radius = MathF.Max(4, mass / 50);
+            bodies.Add(new CelestialBody(
+                pos: dragStart,
+                vel: initVel,
+                mass: mass,
+                radius: radius,
+                color: Color.YellowGreen
+            ));
+            Invalidate();
+        }
+    }
 }
